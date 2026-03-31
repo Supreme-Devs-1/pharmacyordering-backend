@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Ordering System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .user-info {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .user-info p {
+            font-size: 0.9em;
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            max-height: 600px;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .auth-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .medicine-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .medicine-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .medicine-card p {
+            font-size: 0.9em;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .price {
+            font-weight: 600;
+            font-size: 1.2em;
+            color: #28a745;
+            margin: 10px 0;
+        }
+
+        .cart-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-item-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .cart-item-info p {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quantity-control input {
+            width: 50px;
+            padding: 5px;
+            text-align: center;
+        }
+
+        .cart-summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 2px solid #667eea;
+        }
+
+        .cart-summary h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid #dee2e6;
+            padding-top: 10px;
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        .nav-button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            background: white;
+            border: 1px solid #dee2e6;
+            margin-bottom: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .nav-button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+        }
+
+        .tab-content {
+            display: flex;
+            gap: 20px;
+        }
+
+        .medicines-grid {
+            flex: 1;
+        }
+
+        .cart-panel {
+            width: 300px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: none;
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            .main-content {
+                max-height: none;
+            }
+
+            .tab-content {
+                flex-direction: column;
+            }
+
+            .cart-panel {
+                width: 100%;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💊 Pharmacy Ordering System</h1>
+            <p>Manage your medications online</p>
+        </div>
+
+        <div class="content">
+            <div class="sidebar">
+                <div class="sidebar-section" id="authSection">
+                    <div class="sidebar-title">Authentication</div>
+                    <button class="nav-button active" onclick="showSection('login')">Login</button>
+                    <button class="nav-button" onclick="showSection('register')">Register</button>
+                </div>
+
+                <div class="sidebar-section" id="appSection" style="display: none;">
+                    <div class="user-info" id="userInfo"></div>
+                    <div class="sidebar-title">Navigation</div>
+                    <button class="nav-button active" onclick="showSection('shop')">Shop</button>
+                    <button class="nav-button" onclick="showSection('cart')">My Cart</button>
+                    <button class="nav-button" onclick="showSection('profile')">Profile</button>
+                    <button class="nav-button" onclick="logout()" style="margin-top: 20px; background: #dc3545; color: white; border-color: #dc3545;">Logout</button>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <!-- Alert Messages -->
+                <div id="alert" class="alert"></div>
+
+                <!-- Login Section -->
+                <div id="login" class="section active">
+                    <h2>Login</h2>
+                    <div style="margin-top: 20px; max-width: 400px;">
+                        <div class="form-group">
+                            <label for="loginUsername">Username</label>
+                            <input type="text" id="loginUsername" placeholder="Enter your username">
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" placeholder="Enter your password">
+                        </div>
+                        <button class="btn-primary" onclick="handleLogin()" style="width: 100%;">Login</button>
+                        <p style="margin-top: 15px; color: #666;">Test credentials: admin / admin123</p>
+                    </div>
+                </div>
+
+                <!-- Register Section -->
+                <div id="register" class="section">
+                    <h2>Register</h2>
+                    <div style="margin-top: 20px; max-width: 400px;">
+                        <div class="form-group">
+                            <label for="regUsername">Username</label>
+                            <input type="text" id="regUsername" placeholder="Choose a username">
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Email</label>
+                            <input type="email" id="regEmail" placeholder="Enter your email">
+                        </div>
+                        <div class="form-group">
+                            <label for="regPassword">Password</label>
+                            <input type="password" id="regPassword" placeholder="Create a password">
+                        </div>
+                        <button class="btn-primary" onclick="handleRegister()" style="width: 100%;">Register</button>
+                    </div>
+                </div>
+
+                <!-- Shop Section -->
+                <div id="shop" class="section">
+                    <h2>Shop Medicines</h2>
+                    <div class="tab-content" style="margin-top: 20px;">
+                        <div class="medicines-grid" id="medicinesContainer">
+                            <div class="loading"><div class="spinner"></div>Loading medicines...</div>
+                        </div>
+                        <div class="cart-panel">
+                            <h3>Shopping Cart</h3>
+                            <div id="cartPreview"></div>
+                            <div class="cart-summary">
+                                <div class="summary-row">
+                                    <span>Items:</span>
+                                    <span id="cartItemCount">0</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span>Total:</span>
+                                    <span id="cartTotal">$0.00</span>
+                                </div>
+                                <button class="btn-primary" onclick="showSection('cart')" style="width: 100%; margin-top: 15px;">View Cart</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Section -->
+                <div id="cart" class="section">
+                    <h2>My Shopping Cart</h2>
+                    <div id="cartContainer" style="margin-top: 20px;"></div>
+                </div>
+
+                <!-- Profile Section -->
+                <div id="profile" class="section">
+                    <h2>My Profile</h2>
+                    <div id="profileContainer" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = 'http://localhost:8080';
+        let currentUser = null;
+        let authToken = null;
+
+        // Initialize
+        window.onload = () => {
+            checkAuthStatus();
+            loadMedicines();
+        };
+
+        // Show Section
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.nav-button').forEach(el => el.classList.remove('active'));
+            event?.target?.classList.add('active');
+
+            if (sectionId === 'shop') loadMedicines();
+            if (sectionId === 'cart') loadCart();
+            if (sectionId === 'profile') loadProfile();
+        }
+
+        // Alert
+        function showAlert(message, type = 'info') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert show alert-${type}`;
+            setTimeout(() => alert.classList.remove('show'), 5000);
+        }
+
+        // Authentication
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showAlert('Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    currentUser = data;
+                    localStorage.setItem('token', authToken);
+                    localStorage.setItem('user', JSON.stringify(data));
+                    updateAuthUI();
+                    showAlert(`Welcome, ${username}!`, 'success');
+                    showSection('shop');
+                } else {
+                    showAlert('Login failed: Invalid credentials', 'error');
+                }
+            } catch (error) {
+                showAlert('Login error: ' + error.message, 'error');
+            }
+        }
+
+        async function handleRegister() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+
+            if (!username || !email || !password) {
+                showAlert('Please fill in all fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.token) {
+                    authToken = data.token;
+                    currentUser = data;
+                    localStorage.setItem('token', authToken);
+                    localStorage.setItem('user', JSON.stringify(data));
+                    updateAuthUI();
+                    showAlert('Registration successful!', 'success');
+                    showSection('shop');
+                } else {
+                    showAlert('Registration failed', 'error');
+                }
+            } catch (error) {
+                showAlert('Registration error: ' + error.message, 'error');
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            updateAuthUI();
+            showAlert('Logged out successfully', 'success');
+        }
+
+        function checkAuthStatus() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+
+            if (token && user) {
+                authToken = token;
+                currentUser = JSON.parse(user);
+                updateAuthUI();
+            }
+        }
+
+        function updateAuthUI() {
+            const authSection = document.getElementById('authSection');
+            const appSection = document.getElementById('appSection');
+
+            if (authToken) {
+                authSection.style.display = 'none';
+                appSection.style.display = 'block';
+                document.getElementById('userInfo').innerHTML = `
+                    <strong>${currentUser.username}</strong>
+                    <p>User ID: ${currentUser.id}</p>
+                `;
+                showSection('shop');
+            } else {
+                authSection.style.display = 'block';
+                appSection.style.display = 'none';
+                showSection('login');
+            }
+        }
+
+        // Medicines
+        let medicines = [];
+
+        async function loadMedicines() {
+            try {
+                const response = await fetch(`${API_BASE}/api/medicines`);
+                medicines = await response.json();
+                displayMedicines();
+            } catch (error) {
+                console.error('Error loading medicines:', error);
+                document.getElementById('medicinesContainer').innerHTML = '<div class="empty-state"><h3>Error loading medicines</h3></div>';
+            }
+        }
+
+        function displayMedicines() {
+            const container = document.getElementById('medicinesContainer');
+            if (!medicines.length) {
+                container.innerHTML = '<div class="empty-state"><h3>No medicines available</h3></div>';
+                return;
+            }
+
+            container.innerHTML = medicines.map(medicine => `
+                <div class="medicine-card">
+                    <h4>${medicine.name}</h4>
+                    <p>${medicine.description || 'Quality medication'}</p>
+                    <p><strong>Category:</strong> ${medicine.category || 'General'}</p>
+                    <div class="price">$${medicine.price.toFixed(2)}</div>
+                    <p><small>Stock: ${medicine.stock}</small></p>
+                    <div class="form-group">
+                        <input type="number" id="qty-${medicine.id}" min="1" max="${medicine.stock}" value="1" style="width: 100px;">
+                    </div>
+                    <button class="btn-primary btn-sm" onclick="addToCart(${medicine.id}, '${medicine.name}', ${medicine.price})">Add to Cart</button>
+                </div>
+            `).join('');
+        }
+
+        // Cart
+        async function addToCart(medicineId, medicineName, price) {
+            if (!authToken) {
+                showAlert('Please login first', 'error');
+                return;
+            }
+
+            const quantity = parseInt(document.getElementById(`qty-${medicineId}`).value);
+
+            try {
+                const response = await fetch(`${API_BASE}/api/cart/add`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ medicineId, quantity })
+                });
+
+                if (response.ok) {
+                    showAlert(`${medicineName} added to cart!`, 'success');
+                    loadCart();
+                    updateCartPreview();
+                } else {
+                    showAlert('Failed to add to cart', 'error');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function loadCart() {
+            if (!authToken) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/cart`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const cart = await response.json();
+                    displayCart(cart);
+                    updateCartPreview();
+                }
+            } catch (error) {
+                console.error('Error loading cart:', error);
+            }
+        }
+
+        function displayCart(cart) {
+            const container = document.getElementById('cartContainer');
+
+            if (!cart.items || !cart.items.length) {
+                container.innerHTML = '<div class="empty-state"><h3>Your cart is empty</h3><p>Start shopping!</p></div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div>
+                    ${cart.items.map(item => `
+                        <div class="cart-item">
+                            <div class="cart-item-info">
+                                <h4>${item.medicineName}</h4>
+                                <p>Price: $${item.priceAtAddTime.toFixed(2)}</p>
+                                <p>Quantity: ${item.quantity}</p>
+                                <p><strong>Subtotal: $${item.subtotal.toFixed(2)}</strong></p>
+                            </div>
+                            <div class="cart-item-actions">
+                                <button class="btn-danger btn-sm" onclick="removeFromCart(${item.medicineId})">Remove</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="cart-summary">
+                    <h3>Order Summary</h3>
+                    <div class="summary-row">
+                        <span>Items:</span>
+                        <span>${cart.itemCount}</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total:</span>
+                        <span>$${cart.totalAmount.toFixed(2)}</span>
+                    </div>
+                    <button class="btn-primary" onclick="checkout()" style="width: 100%; margin-top: 15px;">Proceed to Checkout</button>
+                    <button class="btn-secondary" onclick="clearCart()" style="width: 100%; margin-top: 10px;">Clear Cart</button>
+                </div>
+            `;
+        }
+
+        async function removeFromCart(medicineId) {
+            if (!authToken) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/cart/remove/${medicineId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    showAlert('Item removed from cart', 'success');
+                    loadCart();
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function clearCart() {
+            if (!authToken) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/cart`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    showAlert('Cart cleared', 'success');
+                    loadCart();
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        function updateCartPreview() {
+            if (!authToken) return;
+
+            fetch(`${API_BASE}/api/cart`, {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            })
+            .then(r => r.json())
+            .then(cart => {
+                document.getElementById('cartItemCount').textContent = cart.itemCount || 0;
+                document.getElementById('cartTotal').textContent = `$${(cart.totalAmount || 0).toFixed(2)}`;
+
+                const preview = document.getElementById('cartPreview');
+                if (cart.items && cart.items.length) {
+                    preview.innerHTML = cart.items.map(item => `
+                        <div style="padding: 10px; background: white; border-radius: 3px; margin-bottom: 5px;">
+                            <p style="font-size: 0.9em;"><strong>${item.medicineName}</strong></p>
+                            <p style="font-size: 0.8em; color: #666;">Qty: ${item.quantity} - $${item.subtotal.toFixed(2)}</p>
+                        </div>
+                    `).join('');
+                } else {
+                    preview.innerHTML = '<p style="color: #999; font-size: 0.9em;">No items</p>';
+                }
+            })
+            .catch(e => console.error('Error updating cart preview:', e));
+        }
+
+        // Profile
+        async function loadProfile() {
+            if (!authToken) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/profile`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const profile = await response.json();
+                    document.getElementById('profileContainer').innerHTML = `
+                        <div class="user-info">
+                            <p><strong>ID:</strong> ${profile.id}</p>
+                            <p><strong>Username:</strong> ${profile.username}</p>
+                            <p><strong>Email:</strong> ${profile.email}</p>
+                            <p><strong>Roles:</strong> ${profile.roles.join(', ') || 'User'}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+            }
+        }
+
+        function checkout() {
+            showAlert('Thank you for your order! This is a demo. In production, payment would be processed here.', 'success');
+        }
+    </script>
+</body>
+</html>
+
